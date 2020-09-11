@@ -8,16 +8,16 @@ import pandas as pd
 
 def init_browser():
     # @NOTE: Replace the path with your actual path to the chromedriver
-    executable_path = {"executable_path": "'chromedriver (2).exe'"}
+    executable_path = {"executable_path": "chromedriver.exe"}
     return Browser("chrome", **executable_path, headless=False)
 
-def scrape_info():
+def scrape():
     browser = init_browser()
 
-    
+    mars_data = {}
     url = "https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest"
     browser.visit(url)
-
+    time.sleep(2)
     html=browser.html
     soup = BeautifulSoup(html, 'html.parser')
     articles = soup.find_all('ul', class_='item_list')
@@ -28,11 +28,14 @@ def scrape_info():
         #print('-------------')
         # print(title)
         # print(news_p)
+    mars_data['title'] = title
+    mars_data['news_p'] = news_p
+
     browser.quit()
     
     url_2 = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(url_2)
-    time.sleep(2)
+    time.sleep(4)
 
     for url in url_2:
         html=browser.html
@@ -45,7 +48,9 @@ def scrape_info():
     #         #image = first.pop(0)
     #         #print(first)
             featured_image_url = ("https://www.jpl.nasa.gov" + href)
-            print(featured_image_url) 
+            #print(featured_image_url) 
+    mars_data['featured_image_url'] = featured_image_url
+
     browser.quit()
     
     url_3 = "https://space-facts.com/mars/"
@@ -55,10 +60,11 @@ def scrape_info():
     html_table.replace('\n', '')
     df.to_html('table.html')
 
+    mars_data['df'] = df
 
     url_4 = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
     browser.visit(url_4)
-
+    time.sleep(4)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
     #page = soup.find('div', class_='collapsible results')
@@ -76,20 +82,21 @@ def scrape_info():
         img_url = ('https://astrogeology.usgs.gov' + image)
         
         t = article.find('div', class_='description')
-        title = t.find('h3').text
+        title_2 = t.find('h3').text
         
     #     image_list.append(img_url)
     #     title_list.append(title)  
         browser.quit()
 
-        hemisphere_image_urls.append({"title": title, "img_url": img_url})
+        hemisphere_image_urls.append({"title": title_2, "img_url": img_url})
 
-    mars_data = {
-        "News Title": title,
-        "Paragraph": news_p,
-        "Image 1": featured_image_url,
-        "Mars Stats": df,
-        "hemisphere_image": hemisphere_image_urls
-    }
+    mars_data['hemisphere_image-urls']=hemisphere_image_urls
+    # mars_data = {
+    #     "title": title,
+    #     "news_p": news_p,
+    #     "fi_url": featured_image_url,
+    #     "stats": df,
+    #     "h_image": hemisphere_image_urls
+    # }
     return mars_data
         

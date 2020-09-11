@@ -5,21 +5,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Mars Data</title>
+  <title>Mars Information</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
 <body>
   <div class="container-fluid">
     <div class="jumbotron text-center">
-      <h1>Visit the...</h1>
-      <p>Mars information headquarters</p>
-      <p><a class="btn btn-primary btn-lg" href="/scrape" role="button">Get Data!</a></p>
+      <h1>Mission to Mars</h1>
+      <p>Mars Information Headquarters </p>
+      <p><a class="btn btn-primary btn-lg" href="/scrape" role="button">Scrape New Data</a></p>
     </div>
-    <img src="{{ planet.featured_image_url}}" alt="Featured Image">
-    <h2>The most recent article found:</h2>
-    <h3>{{ planet.title }}</h3>
-    <h3>{{ planet.news_p }}</h3>
+    <img src="{{ mars.featured_image_url }}" alt="Featured Image URL">
+    <h2>Latest Mars News:</h2>
+    <h3>Max Temp: {{ mars.title }}</h3>
+    <h3>Min Temp: {{ mars.news_p }}</h3>
   </div>
   </div>
 </body>
