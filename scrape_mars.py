@@ -14,7 +14,6 @@ def init_browser():
 def scrape():
     browser = init_browser()
 
-    mars_data = {}
     url = "https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest"
     browser.visit(url)
     time.sleep(2)
@@ -25,55 +24,34 @@ def scrape():
     for article in articles:
         title = article.find('div', class_='content_title').text
         news_p = article.find('div', class_= 'article_teaser_body').text
-        #print('-------------')
-        # print(title)
-        # print(news_p)
-    mars_data['title'] = title
-    mars_data['news_p'] = news_p
-
-    browser.quit()
     
     url_2 = "https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
     browser.visit(url_2)
-    time.sleep(4)
+    browser.links.find_by_partial_text('FULL IMAGE').click()
+    browser.links.find_by_partial_text('more info').click()
+    html=browser.html
+    soup = BeautifulSoup(html, 'html.parser')
 
-    for url in url_2:
-        html=browser.html
-        soup = BeautifulSoup(html, 'html.parser')
-        buttons = soup.find('a', class_="button fancybox")
+    first = soup.find('img', class_= "main_image")['src']
 
-        for button in buttons:
-            href = button.get('data-fancybox-href')
-    #         first = href.split()[0]
-    #         #image = first.pop(0)
-    #         #print(first)
-            featured_image_url = ("https://www.jpl.nasa.gov" + href)
-            #print(featured_image_url) 
-    mars_data['featured_image_url'] = featured_image_url
+    featured_image_url = ("https://www.jpl.nasa.gov" + first)
 
-    browser.quit()
     
     url_3 = "https://space-facts.com/mars/"
     tables = pd.read_html(url_3)
     df = tables[0]
-    html_table = df.to_html()
-    html_table.replace('\n', '')
-    df.to_html('table.html')
+    df.columns = ['Category', 'Measurements']
 
-    mars_data['df'] = df
+    table = df.to_html(index = False, classes="table table-striped")
+
 
     url_4 = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
     browser.visit(url_4)
     time.sleep(4)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
-    #page = soup.find('div', class_='collapsible results')
 
     articles = soup.find_all('div', class_='item')
-
-    #print(articles)
-    # title_list = []
-    # image_list = []
 
     hemisphere_image_urls = []
 
@@ -84,19 +62,17 @@ def scrape():
         t = article.find('div', class_='description')
         title_2 = t.find('h3').text
         
-    #     image_list.append(img_url)
-    #     title_list.append(title)  
-        browser.quit()
 
         hemisphere_image_urls.append({"title": title_2, "img_url": img_url})
 
-    mars_data['hemisphere_image-urls']=hemisphere_image_urls
-    # mars_data = {
-    #     "title": title,
-    #     "news_p": news_p,
-    #     "fi_url": featured_image_url,
-    #     "stats": df,
-    #     "h_image": hemisphere_image_urls
-    # }
+    mars_data = {
+        "title": title,
+        "news_p": news_p,
+        "fi_url": featured_image_url,
+        "stats": table,
+        "h_image": hemisphere_image_urls
+    }
+    
+    browser.quit()
     return mars_data
         
